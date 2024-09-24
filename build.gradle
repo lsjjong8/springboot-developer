@@ -1,0 +1,25 @@
+plugins { // 프로젝트에 사용할 스프링 부트와 스프링 플러그인 의존성 관리
+    id 'java'
+    id 'org.springframework.boot' version '3.0.2'
+    id 'io.spring.dependency-management' version '1.1.0'
+}
+
+// group에는 프로젝트를 생성할 때의 기입한 기본값으로 세팅, 프로젝트 버전
+group = 'com.itschool'
+version = '1.0-SNAPSHOT'
+sourceCompatibility = '17' // 컴파일 시 자바 버전 17
+
+// 의존성을 받을 저장소
+repositories {
+    mavenCentral() // maven repository
+}
+
+// 프로젝트를 개발하며 필요한 기능의 의존성을 관리
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+test {
+    useJUnitPlatform()
+}
