@@ -36,7 +36,7 @@ public class BlogService {
         blogRepository.deleteById(id);
     }
 
-    @Transactional(rollbackFor = RuntimeException.class) // 트랜잭션 메서드
+    @Transactional // 트랜잭션 메서드여야 더티 체킹 활성화, 기본값 (rollbackFor = RuntimeException.class)
     public Article update(Long id, UpdateArticleRequest request) {
         Article article = blogRepository.findById(id)
                 .orElseThrow(()-> new IllegalArgumentException("not found" + id));

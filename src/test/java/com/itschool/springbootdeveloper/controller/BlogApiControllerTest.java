@@ -2,13 +2,13 @@ package com.itschool.springbootdeveloper.controller;
 
 import com.itschool.springbootdeveloper.domain.Article;
 import com.itschool.springbootdeveloper.dto.AddArticleRequest;
+import com.itschool.springbootdeveloper.dto.UpdateArticleRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
@@ -80,5 +80,102 @@ class BlogApiControllerTest extends MockMvcTest<Article, Long> {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].title").value(title));
 
         assertThat(beforeCount+1).isEqualTo(afterCount);
+    }
+
+    @DisplayName("findArticle: 블로그 글 조회에 성공한다.")
+    @Test
+    public void findArticle() throws Exception {
+        // given : 테스트를 위한 준비가 주어져야 함
+        final String url = "/api/articles/{id}";
+        final String title = "title";
+        final String content = "content";
+
+        Long beforeCount = baseRepository.count(); // 0
+
+        Article article = baseRepository.save(Article.builder()
+                .title(title)
+                .content(content)
+                .build());
+
+        Long afterCount = baseRepository.count(); // 1
+
+        // when : 테스트를 위한 수행
+        final ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get(url, article.getId())
+                .accept(MediaType.APPLICATION_JSON));
+
+        // then : 그러면 결과를 검증해볼까요?
+        resultActions
+                .andExpect(MockMvcResultMatchers.status().isOk()) // 응답코드가 200이 맞는가?
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content").value(content))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.title").value(title));
+
+        assertThat(beforeCount + 1).isEqualTo(afterCount);
+    }
+
+    @DisplayName("deleteArticle: 블로그 글 삭제에 성공한다.")
+    @Test
+    public void deleteArticle() throws Exception {
+        // given : 테스트를 위한 준비가 주어져야 함
+        final String url = "/api/articles/{id}";
+        final String title = "title";
+        final String content = "content";
+
+        Article article = baseRepository.save(Article.builder()
+                .title(title)
+                .content(content)
+                .build());
+
+        Long beforeCount = baseRepository.count(); // 1
+
+        // when : 테스트를 위한 수행
+        mockMvc.perform(MockMvcRequestBuilders.delete(url, article.getId()))
+                .andExpect(MockMvcResultMatchers.status().isOk());
+
+        Long afterCount = baseRepository.count(); // 0
+
+        // then : 그러면 결과를 검증해볼까요?
+        List<Article> articles = baseRepository.findAll();
+
+        assertThat(articles.isEmpty());
+        assertThat(beforeCount - 1).isEqualTo(afterCount);
+    }
+
+    @DisplayName("updateArticle: 블로그 글 수정에 성공한다.")
+    @Test
+    public void updateArticle() throws Exception {
+        // given
+        final String url = "/api/articles/{id}";
+        final String title = "title";
+        final String content = "content";
+
+        Article savedArticle = baseRepository.save(Article.builder()
+                .title(title)
+                .content(content)
+                .build());
+
+        Long beforeCount = baseRepository.count(); // 1
+
+        final String newTitle = "new title";
+        final String newContent = "new content";
+
+        UpdateArticleRequest request = new UpdateArticleRequest(newTitle, newContent);
+
+        // when
+        // 설정한 내용을 바탕으로 요청 전송
+        ResultActions result = mockMvc.perform(MockMvcRequestBuilders.put(url, savedArticle.getId())
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(objectMapper.writeValueAsString(request))); // request를 json형태의 String으로 직렬화
+
+        Long afterCount = baseRepository.count(); // 1
+
+        // then
+        result.andExpect(MockMvcResultMatchers.status().isOk());
+
+        Article article = baseRepository.findById(savedArticle.getId()).get();
+
+        assertThat(article.getTitle()).isEqualTo(newTitle);
+        assertThat(article.getContent()).isEqualTo(newContent);
+
+        assertThat(beforeCount).isEqualTo(afterCount);
     }
 }
