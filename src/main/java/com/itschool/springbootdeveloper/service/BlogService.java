@@ -2,9 +2,11 @@ package com.itschool.springbootdeveloper.service;
 
 import com.itschool.springbootdeveloper.domain.Article;
 import com.itschool.springbootdeveloper.dto.AddArticleRequest;
+import com.itschool.springbootdeveloper.dto.UpdateArticleRequest;
 import com.itschool.springbootdeveloper.repository.BlogRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -23,5 +25,24 @@ public class BlogService {
     // 블로그 글 전체 조회
     public List<Article> findAll() {
         return blogRepository.findAll();
+    }
+
+    public Article findById(long id) {
+        return blogRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("not found: " + id));
+    }
+
+    public void delete(long id) {
+        blogRepository.deleteById(id);
+    }
+
+    @Transactional(rollbackFor = RuntimeException.class) // 트랜잭션 메서드
+    public Article update(Long id, UpdateArticleRequest request) {
+        Article article = blogRepository.findById(id)
+                .orElseThrow(()-> new IllegalArgumentException("not found" + id));
+
+        article.update(request.getTitle(), request.getContent());
+
+        return article;
     }
 }

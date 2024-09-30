@@ -3,6 +3,7 @@ package com.itschool.springbootdeveloper.controller;
 import com.itschool.springbootdeveloper.domain.Article;
 import com.itschool.springbootdeveloper.dto.AddArticleRequest;
 import com.itschool.springbootdeveloper.dto.ArticleResponse;
+import com.itschool.springbootdeveloper.dto.UpdateArticleRequest;
 import com.itschool.springbootdeveloper.service.BlogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,21 +20,16 @@ public class BlogApiController {
 
     private final BlogService blogService;
 
-    @GetMapping("{id}")
-    public String method1(@PathVariable Long id) {
-        return "글 조회 테스트";
+    @GetMapping("{id}") // readAll
+    public ResponseEntity<ArticleResponse> findArticles(@PathVariable long id) {
+        Article article = blogService.findById(id);
+
+        return ResponseEntity.ok()
+                .body(new ArticleResponse(article));
     }
 
-    @GetMapping("")
+    @GetMapping("") // readOne
     public ResponseEntity<List<ArticleResponse>> findAllArticles() {
-        // 방식 1
-        /*List<Article> articleList = blogService.findAll();
-        List<ArticleResponse> articles = new ArrayList<>();
-
-        for(Article article : articleList) {
-            articles.add(new ArticleResponse(article));
-        }*/
-
         // 방식 2
         List<ArticleResponse> articles = blogService.findAll()
                 .stream()
@@ -45,7 +41,7 @@ public class BlogApiController {
     }
 
     // HTTP 메서드가 POST일 때 전달받은 URL과 동일하면 메서드로 매핑
-    @PostMapping("")
+    @PostMapping("")// createOne
     // @RequestBody로 요청 본문 값 매핑
     public ResponseEntity<Article> addArticle(@RequestBody AddArticleRequest request) {
         Article savedArticle = blogService.create(request);
@@ -54,13 +50,20 @@ public class BlogApiController {
                 .body(savedArticle);
     }
 
-    @PutMapping("{id}")
-    public String method2(@PathVariable Long id) {
-        return "글 수정 테스트";
+    @PutMapping("{id}") // updateOne
+    public ResponseEntity<Article> updateArticle(@PathVariable Long id,
+                                                 @RequestBody UpdateArticleRequest request) {
+        Article updateArticle = blogService.update(id, request);
+
+        return ResponseEntity.ok()
+                .body(updateArticle);
     }
 
-    @DeleteMapping("{id}")
-    public String method3(@PathVariable Long id) {
-        return "글 삭제 테스트";
+    @DeleteMapping("{id}") // deleteOne
+    public ResponseEntity<Void> deleteArticle(@PathVariable Long id) {
+        blogService.delete(id);
+
+        return ResponseEntity.ok()
+                .build();
     }
 }

@@ -8,6 +8,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
@@ -46,5 +47,38 @@ class BlogApiControllerTest extends MockMvcTest<Article, Long> {
         assertThat(articles.size()).isEqualTo(1); // 크기가 1인지 검증
         assertThat(articles.get(0).getTitle()).isEqualTo(title);
         assertThat(articles.get(0).getContent()).isEqualTo(content);
+    }
+
+    @DisplayName("findAllArticles: 블로그 글 목록 조회에 성공한다.")
+    @Test
+    public void findAllArticles() throws Exception {
+        // @BeforeEach에서 baseRepository.deleteAll()을 수행하기 때문에 테이블이 초기화 돼있음
+        
+        // given : 테스트를 위한 준비가 주어져야 함
+        final String url = "/api/articles";
+        final String title = "title";
+        final String content = "content";
+
+        Long beforeCount = baseRepository.count(); // 0
+
+        baseRepository.save(Article.builder()
+                .title(title)
+                .content(content)
+                .build());
+
+        Long afterCount = baseRepository.count(); // 1
+
+        // when : 테스트를 위한 수행
+        final ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get(url)
+                .accept(MediaType.APPLICATION_JSON));
+
+
+        // then : 그러면 결과를 검증해볼까요?
+        resultActions
+                .andExpect(MockMvcResultMatchers.status().isOk()) // 응답코드가 200이 맞는가?
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].content").value(content))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].title").value(title));
+
+        assertThat(beforeCount+1).isEqualTo(afterCount);
     }
 }
