@@ -9,6 +9,7 @@ spring:
       enabled: true # /h2-console 설정
   datasource:
     url: jdbc:h2:mem:testdb # 메모리 H2 DB 경로 설정
+    sql-script-encoding: UTF-8
   jpa:
     # 전송 쿼리 확인, 애플리케이션 실행과정에 쿼리의 실행 구문을 모두 보여줌
     show-sql: true
@@ -16,7 +17,7 @@ spring:
       hibernate:
         format_sql: true
         ddl-auto: create
-        -- dialect: org.hibernate.dialect.H2Dialect # H2 Dialect 설정
+        dialect: org.hibernate.dialect.H2Dialect # H2 Dialect 설정
     
     # 테이블 생성 후에 data.sql 실행
     defer-datasource-initialization: true
