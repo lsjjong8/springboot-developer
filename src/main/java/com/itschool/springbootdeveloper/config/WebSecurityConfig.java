@@ -28,7 +28,7 @@ public class WebSecurityConfig {
     @Bean
     public WebSecurityCustomizer configure() {
         return (web -> web.ignoring()
-                .requestMatchers(toH2Console()) // h2-console는 url은 막지마라
+                // .requestMatchers(toH2Console()) // h2-console는 url은 막지마라
                 .requestMatchers(new AntPathRequestMatcher("/js/**")) // 정적 파일 url은 막지마라
                 .requestMatchers(new AntPathRequestMatcher("/css/**")));
     }

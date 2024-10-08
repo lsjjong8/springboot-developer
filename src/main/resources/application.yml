@@ -7,5 +7,3 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.MySQL8Dialect # MySQL8 방언 사용
-    # 데이터베이스 초기화 순서 제어 (옵션, 설정 필요 없을 경우 생략 가능)
-    # defer-datasource-initialization: false
